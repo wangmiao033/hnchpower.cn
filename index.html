@@ -15,9 +15,9 @@
       <div class="logo">海南畅核科技有限公司</div>
       <div class="nav-links">
         <a href="#games">作品</a>
-        <a href="#contact">联系</a>
+        <a href="contact.html">联系</a>
       </div>
-      <a class="btn primary" href="#contact">与我们合作</a>
+      <a class="btn primary" href="contact.html">与我们合作</a>
     </nav>
     <div class="hero-grid">
       <div class="hero-copy">
@@ -27,33 +27,6 @@
         <div class="cta-row">
           <a class="btn primary" href="#games">查看作品</a>
           <a class="btn ghost" href="#contact">合作发行</a>
-        </div>
-      </div>
-      <div class="hero-card">
-        <div class="card-title">最新上线</div>
-        <div class="card-game">
-          <div class="pill">动作 RPG</div>
-          <h3>Emberfall Legends</h3>
-          <p>小队突袭、自适应 AI Boss、季度联机赛季，爽快协作体验。</p>
-          <div class="stats">
-            <div>
-              <strong>4.8</strong>
-              <span>应用评分</span>
-            </div>
-            <div>
-              <strong>2.1M</strong>
-              <span>玩家数</span>
-            </div>
-            <div>
-              <strong>120k</strong>
-              <span>日活</span>
-            </div>
-          </div>
-          <div class="tags">
-            <span>PvE / PvP</span>
-            <span>跨平台联机</span>
-            <span>赛季制</span>
-          </div>
         </div>
       </div>
     </div>
@@ -80,6 +53,26 @@
             <li>跨端体验与性能优化</li>
           </ul>
         </article>
+        <article class="game-card">
+          <div class="pill">MMORPG</div>
+          <h3>云上征途</h3>
+          <p>大型多人在线角色扮演游戏，开放世界探索与社交体验。</p>
+          <ul>
+            <li>广阔开放世界与丰富剧情</li>
+            <li>多人协作与竞技玩法</li>
+            <li>持续内容更新与社区运营</li>
+          </ul>
+        </article>
+        <article class="game-card">
+          <div class="pill">武侠 RPG</div>
+          <h3>荡剑闯天涯</h3>
+          <p>经典武侠题材角色扮演，自由探索江湖世界，体验快意恩仇。</p>
+          <ul>
+            <li>丰富武学系统与战斗机制</li>
+            <li>多样剧情分支与角色成长</li>
+            <li>沉浸式武侠世界观体验</li>
+          </ul>
+        </article>
       </div>
     </section>
 
@@ -87,10 +80,6 @@
 
   <footer class="footer">
     <div class="footer-grid">
-      <div>
-        <div class="logo">HNCH Power</div>
-        <p>独立工作室，为全球玩家打造难忘的游戏体验。</p>
-      </div>
       <div>
         <h4>关注</h4>
         <div class="footer-links">
@@ -135,6 +124,52 @@
       </div>
     </div>
   </section>
+
+  <!-- 浮动窗口 -->
+  <div class="float-widget">
+    <div class="float-menu" id="floatMenu">
+      <a href="index.html" class="float-menu-item">
+        <span class="icon">🏠</span>
+        <span>返回首页</span>
+      </a>
+      <a href="contact.html" class="float-menu-item">
+        <span class="icon">📧</span>
+        <span>联系我们</span>
+      </a>
+      <a href="mailto:pingce@dxyx6888.com" class="float-menu-item">
+        <span class="icon">✉️</span>
+        <span>发送邮件</span>
+      </a>
+      <a href="tel:17600338952" class="float-menu-item">
+        <span class="icon">📞</span>
+        <span>拨打电话</span>
+      </a>
+    </div>
+    <div class="float-btn main-btn" id="floatBtn" onclick="toggleFloatMenu()">
+      <span id="floatIcon">☰</span>
+    </div>
+  </div>
+
+  <script>
+    function toggleFloatMenu() {
+      const menu = document.getElementById('floatMenu');
+      const icon = document.getElementById('floatIcon');
+      menu.classList.toggle('active');
+      icon.textContent = menu.classList.contains('active') ? '✕' : '☰';
+    }
+
+    // 点击页面其他地方关闭菜单
+    document.addEventListener('click', function(event) {
+      const floatWidget = document.querySelector('.float-widget');
+      const floatBtn = document.getElementById('floatBtn');
+      if (!floatWidget.contains(event.target)) {
+        const menu = document.getElementById('floatMenu');
+        const icon = document.getElementById('floatIcon');
+        menu.classList.remove('active');
+        icon.textContent = '☰';
+      }
+    });
+  </script>
 </body>
 </html>
 
