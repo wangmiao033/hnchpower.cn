@@ -1,0 +1,39 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "public",
+  "cleanUrls": false,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/admin/(.*)",
+      "headers": [
+        {"key": "X-Robots-Tag", "value": "noindex, nofollow"},
+        {"key": "Cache-Control", "value": "no-store"}
+      ]
+    },
+    {
+      "source": "/static.sh9130.com/(.*)",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        {"key": "Cache-Control", "value": "public, max-age=300, s-maxage=86400, stale-while-revalidate=604800"}
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/cms/:path*",
+      "destination": "https://bypekqxsnuvqbgvdosdl.supabase.co/functions/v1/yjsy-public/article?path=/cms/:path*"
+    },
+    {
+      "source": "/sitemap-cms.xml",
+      "destination": "https://bypekqxsnuvqbgvdosdl.supabase.co/functions/v1/yjsy-public/sitemap"
+    },
+    {"source": "/admin", "destination": "/admin/index.html"},
+    {"source": "/admin/", "destination": "/admin/index.html"}
+  ]
+}
