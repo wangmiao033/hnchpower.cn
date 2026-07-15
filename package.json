@@ -1,0 +1,9 @@
+{
+  "name": "hnchpower-yjsy-builder",
+  "version": "1.0.0",
+  "private": false,
+  "type": "module",
+  "files": [
+    "tools/yjsy-cms/deploy-footer-fix.mjs"
+  ]
+}
