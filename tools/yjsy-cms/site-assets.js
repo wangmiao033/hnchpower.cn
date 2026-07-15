@@ -5,7 +5,7 @@ if(!cfg)return;
 const OLD_COMPANY=['上','海','圆','戏','网','络','科','技','有','限','公','司'].join('');
 const defaultSite={
   company_name:'广州熊动科技有限公司',
-  address:'上海市嘉定区真南路4268号2幢JT7917室',
+  address:'广州市越秀区江月路13号之一301-自编390-16',
   business_license_label:'经营许可证编号',
   business_license_number:'',
   business_license_url:'',
@@ -77,11 +77,14 @@ function ensureParagraph(parent,className,index){
   while(list.length<=index){const p=document.createElement('p');p.className=className;parent.append(p);list=parent.querySelectorAll(`p.${className}`);}
   return list[index];
 }
-function applyFooter(s={}){
-  site={...defaultSite,...s};
-  replaceCompany();
-  const wrap=document.querySelector('.audio_visual .wrap');
-  if(!wrap)return;
+function footerWraps(){
+  const candidates=[...document.querySelectorAll('.audio_visual .wrap, .news_footer .wrap, body.new .wrap, .new .wrap')];
+  document.querySelectorAll('.wrap').forEach(w=>{
+    if(w.querySelector('.info1')&&(w.querySelector('p.addr')||w.querySelector('p.p2')))candidates.push(w);
+  });
+  return [...new Set(candidates)];
+}
+function applyFooterToWrap(wrap){
   const info=wrap.querySelector('.info1');
   if(info){
     let linkBox=info.querySelector('div[style*="text-align"]');
@@ -124,10 +127,15 @@ function applyFooter(s={}){
   health.textContent=site.health_notice||'';
   health.style.display=site.health_notice?'':'none';
 }
+function applyFooter(s={}){
+  site={...defaultSite,...s};
+  replaceCompany();
+  footerWraps().forEach(applyFooterToWrap);
+}
 async function load(){
   applyFooter(defaultSite);
   try{
-    const r=await fetch(`${cfg.supabaseUrl}/rest/v1/yjsy_site_settings?select=key,value&key=in.(assets,downloads,site)`,{headers:H});
+    const r=await fetch(`${cfg.supabaseUrl}/rest/v1/yjsy_site_settings?select=key,value&key=in.(assets,downloads,site)&_=${Date.now()}`,{headers:H,cache:'no-store'});
     const rows=await r.json();
     for(const x of rows||[]){
       if(x.key==='assets')applyAssets(x.value||{});
