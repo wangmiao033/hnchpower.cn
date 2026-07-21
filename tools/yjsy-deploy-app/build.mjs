@@ -10,7 +10,6 @@ const HERO_SOURCE='/static.sh9130.com/gw/dlw/gw/images/bg.jpg';
 const OLD_ADDRESS='上海市嘉定区真南路4268号2幢JT7917室';
 const NEW_ADDRESS='广州市越秀区江月路13号之一301-自编390-16';
 const PREVIEW='/assets/yjsy-bg-preview.webp';
-const TOP='/assets/yjsy-bg-top.webp';
 const FULL='/assets/yjsy-bg-full.webp';
 
 await mkdir(OUT,{recursive:true});
@@ -18,7 +17,7 @@ await mkdir(new URL('assets/',OUT),{recursive:true});
 await mkdir(new URL('admin/',OUT),{recursive:true});
 
 async function fetchBuffer(url){
-  const r=await fetch(url,{headers:{'user-agent':'Mozilla/5.0 (compatible; YJSYBuilder/3.0)'}});
+  const r=await fetch(url,{headers:{'user-agent':'Mozilla/5.0 (compatible; YJSYBuilder/3.1)'}});
   if(!r.ok)throw Error(`${url}: HTTP ${r.status}`);
   return Buffer.from(await r.arrayBuffer());
 }
@@ -29,16 +28,13 @@ async function buildProgressiveBackground(){
   const meta=await sharp(input,{limitInputPixels:false}).metadata();
   const width=meta.width||1920,height=meta.height||1080;
   const outputWidth=Math.min(1920,width);
-  const cropHeight=Math.min(height,Math.max(720,Math.round(width*0.62)));
-  const preview=await sharp(input,{limitInputPixels:false}).resize({width:96,withoutEnlargement:true}).blur(0.45).webp({quality:24,effort:4}).toBuffer();
-  const top=await sharp(input,{limitInputPixels:false}).extract({left:0,top:0,width,height:cropHeight}).resize({width:outputWidth,withoutEnlargement:true}).webp({quality:80,effort:5,smartSubsample:true}).toBuffer();
-  const full=await sharp(input,{limitInputPixels:false}).resize({width:outputWidth,withoutEnlargement:true}).webp({quality:78,effort:5,smartSubsample:true}).toBuffer();
+  const preview=await sharp(input,{limitInputPixels:false}).resize({width:72,withoutEnlargement:true}).blur(0.35).webp({quality:28,effort:4}).toBuffer();
+  const full=await sharp(input,{limitInputPixels:false}).resize({width:outputWidth,withoutEnlargement:true}).webp({quality:76,effort:5,smartSubsample:true}).toBuffer();
   await Promise.all([
     writeFile(new URL(PREVIEW.slice(1),OUT),preview),
-    writeFile(new URL(TOP.slice(1),OUT),top),
     writeFile(new URL(FULL.slice(1),OUT),full)
   ]);
-  return{width,height,cropHeight,inputBytes:input.length,previewBytes:preview.length,topBytes:top.length,fullBytes:full.length};
+  return{width,height,inputBytes:input.length,previewBytes:preview.length,fullBytes:full.length,previewData:`data:image/webp;base64,${preview.toString('base64')}`};
 }
 
 const progressive=await buildProgressiveBackground();
@@ -46,7 +42,7 @@ const [siteScript,adminScript]=await Promise.all([fetchText(SITE_SCRIPT),fetchTe
 await writeFile(new URL('assets/site-assets-live.js',OUT),siteScript);
 await writeFile(new URL('admin/admin-assets-live.js',OUT),adminScript);
 
-const progressiveHead=`<link rel="preload" as="image" href="${TOP}" type="image/webp" fetchpriority="high"><style id="yjsy-progressive-bg">html,body{background:#a9d6cf}.container{position:relative!important;isolation:isolate;background-color:#a9d6cf!important;background-image:url("${TOP}"),url("${PREVIEW}")!important;background-position:center top,center top!important;background-repeat:no-repeat,no-repeat!important;background-size:100% auto,100% auto!important}.container::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:url("${FULL}") center top/100% auto no-repeat;opacity:0;transition:opacity .65s ease}.yjsy-bg-ready .container::before{opacity:1}.yjsy-custom-hero .container::before{display:none}@media(prefers-reduced-motion:reduce){.container::before{transition:none}}</style><script id="yjsy-progressive-loader">(()=>{let started=false;const run=()=>{if(started||document.documentElement.classList.contains('yjsy-custom-hero'))return;started=true;const i=new Image();i.decoding='async';i.fetchPriority='low';const done=()=>document.documentElement.classList.add('yjsy-bg-ready');i.onload=done;i.src='${FULL}';if(i.complete)done()};const queue=()=>{'requestIdleCallback'in window?requestIdleCallback(run,{timeout:900}):setTimeout(run,180)};document.readyState==='loading'?document.addEventListener('DOMContentLoaded',queue,{once:true}):queue()})();</script>`;
+const progressiveHead=`<link rel="preload" as="image" href="${FULL}" type="image/webp" fetchpriority="high"><style id="yjsy-progressive-bg">html,body{background:#a9d6cf}.container{background-color:#a9d6cf!important;background-image:url("${progressive.previewData}")!important;background-position:center top!important;background-repeat:no-repeat!important;background-size:100% auto!important}.yjsy-bg-ready .container{background-image:url("${FULL}")!important}.yjsy-custom-hero .container{background-image:var(--yjsy-custom-hero)!important}</style><script id="yjsy-progressive-loader">(()=>{const done=()=>document.documentElement.classList.add('yjsy-bg-ready');const i=new Image();i.decoding='async';i.fetchPriority='high';i.onload=done;i.onerror=done;i.src='${FULL}';if(i.complete)done()})();</script>`;
 
 const seeds=['/','/xw/','/xw/p2.html','/xw/p3.html','/gg/','/gl/','/sy/','/robots.txt','/sitemap.xml','/BingSiteAuth.xml','/bdf344323d3225c6943aa340801bf2ff.txt','/admin/','/admin/admin.css','/admin/admin.js','/assets/yjsy-config.js','/assets/yjsy-runtime.js','/article.html'];
 const q=seeds.map(x=>new URL(x,O).href),seen=new Set(),failures=[];
@@ -86,6 +82,7 @@ function patch(text,type,path){
     text=optimizeImages(text);
     if(path==='/'){
       text=text.replace(/<link rel="preload" as="image" href="\/static\.sh9130\.com\/gw\/dlw\/gw\/images\/bg\.jpg"[^>]*>/g,'');
+      text=text.replace(/<link rel="preload" as="image" href="\/assets\/yjsy-bg-(?:top|full)\.webp"[^>]*>/g,'');
       text=text.replace(/<style id="hero-loading-fix">[\s\S]*?<\/style>/g,'');
       text=text.replace(/<style id="yjsy-progressive-bg">[\s\S]*?<\/style><script id="yjsy-progressive-loader">[\s\S]*?<\/script>/g,'');
       text=text.replace('</head>',`${progressiveHead}</head>`);
@@ -98,7 +95,7 @@ async function worker(){
   while(q.length){
     const url=q.shift(),key=norm(url);if(seen.has(key))continue;seen.add(key);
     try{
-      const r=await fetch(url,{redirect:'follow',headers:{'user-agent':'Mozilla/5.0 (compatible; YJSYProgressiveBuilder/3.0)'}});
+      const r=await fetch(url,{redirect:'follow',headers:{'user-agent':'Mozilla/5.0 (compatible; YJSYProgressiveBuilder/3.1)'}});
       if(!r.ok)throw Error(`HTTP ${r.status}`);
       const t=r.headers.get('content-type')||'',path=new URL(url).pathname;
       let data=Buffer.from(await r.arrayBuffer());
@@ -108,6 +105,6 @@ async function worker(){
   }
 }
 await Promise.all(Array.from({length:18},worker));
-await writeFile(new URL('progressive-image-report.json',OUT),JSON.stringify({copied,patched,addressReplaced,lazyImages,progressive,failures},null,2));
+await writeFile(new URL('progressive-image-report.json',OUT),JSON.stringify({copied,patched,addressReplaced,lazyImages,progressive:{...progressive,previewData:undefined},failures},null,2));
 console.log(`Completed ${copied}; patches ${patched}; lazy images ${lazyImages}; full background ${progressive.fullBytes} bytes; failures ${failures.length}`);
 if(!copied)throw Error('Site copy failed');
