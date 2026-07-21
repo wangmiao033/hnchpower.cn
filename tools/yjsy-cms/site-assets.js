@@ -4,6 +4,8 @@ const cfg=window.YJSY_CONFIG;
 if(!cfg)return;
 const CACHE_KEY='yjsy_site_settings_cache_v2';
 const CHANNEL='yjsy-site-settings';
+const DEFAULT_HERO='/static.sh9130.com/gw/dlw/gw/images/bg.jpg';
+const HERO_PREVIEW='/assets/yjsy-bg-preview.webp';
 const OLD_COMPANY=['上','海','圆','戏','网','络','科','技','有','限','公','司'].join('');
 const defaultSite={
   company_name:'广州熊动科技有限公司',
@@ -20,10 +22,11 @@ const defaultSite={
   publication_isbn:'ISBN 978-7-498-12340-4',
   copyright_registration:'2022SR0518402',
   approval_number:'国新出审〔2023〕801号',
-  health_notice:'抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康生活。'
+  health_notice:'抵制不良游戏，拒绝盗版游戏。注意自我保护，谨防受骗上当。适度游戏益脑，沉迷游戏伤身。合理安排时间，享受健康游戏生活。'
 };
 const defaultDownloads={ios:'https://adapi.sh9130.com/download/?s=TPj3888A',android:'/static.sh9130.com/uploads/apk/dlwgwbdb/dlwgwbdb_1905117.apk'};
 let current={assets:{},downloads:{...defaultDownloads},site:{...defaultSite}};
+let heroRequest=0;
 const H={apikey:cfg.supabaseKey,Authorization:`Bearer ${cfg.supabaseKey}`};
 
 function readCache(){
@@ -49,6 +52,23 @@ function replaceCompany(root=document){
   }));
 }
 function setImg(selector,url){if(!url)return;document.querySelectorAll(selector).forEach(el=>{if(el.getAttribute('src')!==url)el.src=url;});}
+function setHero(url){
+  const c=document.querySelector('.container');
+  if(!c||!url)return;
+  const clean=String(url).split('?')[0];
+  const request=++heroRequest;
+  if(clean===DEFAULT_HERO){
+    document.documentElement.classList.remove('yjsy-custom-hero');
+    c.style.removeProperty('background-image');
+    return;
+  }
+  document.documentElement.classList.add('yjsy-custom-hero');
+  c.style.setProperty('background-image',`url("${HERO_PREVIEW}")`,'important');
+  const img=new Image();
+  img.decoding='async';
+  img.onload=()=>{if(request===heroRequest)c.style.setProperty('background-image',`url("${url}")`,'important');};
+  img.src=url;
+}
 function setSwiper(selector,urls){
   if(!urls.length)return;
   [...document.querySelectorAll(`${selector} .swiper-slide`)].forEach((s,i)=>{
@@ -58,7 +78,7 @@ function setSwiper(selector,urls){
 }
 function applyAssets(a={}){
   setImg('.header img.logo',a.header_logo);
-  if(a.hero_background){const c=document.querySelector('.container');if(c)c.style.backgroundImage=`url("${a.hero_background}")`;}
+  if(a.hero_background)setHero(a.hero_background);
   setImg('.banner .qrcode',a.main_qrcode);
   setImg('.slide_qrcode img',a.side_qrcode||a.main_qrcode);
   setImg('.new_right_ew img',a.side_qrcode||a.main_qrcode);
