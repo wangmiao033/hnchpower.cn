@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node taptap-rep-patch.mjs && node fast-hero-patch.mjs"
+    "build": "node bootstrap.mjs"
   },
   "dependencies": {
     "sharp": "^0.34.3"
