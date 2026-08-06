@@ -1,7 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 
 const RAW = 'https://raw.githubusercontent.com/wangmiao033/hnchpower.cn/main/tools/yjsy-deploy-app/';
-const scripts = ['build.mjs', 'taptap-rep-patch.mjs', 'fast-hero-patch.mjs', 'instant-render-patch.mjs', 'split-hero-patch.mjs'];
+const scripts = ['build.mjs', 'taptap-rep-patch.mjs', 'fast-hero-patch.mjs', 'instant-render-patch.mjs', 'split-hero-patch.mjs', 'runtime-stability-patch.mjs'];
 
 for (const name of scripts) {
   const response = await fetch(`${RAW}${name}`, {
@@ -16,3 +16,4 @@ await import(`./taptap-rep-patch.mjs?v=${Date.now()}`);
 await import(`./fast-hero-patch.mjs?v=${Date.now()}`);
 await import(`./instant-render-patch.mjs?v=${Date.now()}`);
 await import(`./split-hero-patch.mjs?v=${Date.now()}`);
+await import(`./runtime-stability-patch.mjs?v=${Date.now()}`);
